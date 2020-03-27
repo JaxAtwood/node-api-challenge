@@ -8,11 +8,15 @@ const router = express.Router();
 router.get("/", (req, res) => {
     Project.get()
         .then(projects => {
+          if(projects.length) {
             res.status(200).json(projects);
+          } else {
+            res.status(404).json({ errorMessage: "Sorry there are no current projects"})
+          }
         })
         .catch(err => {
             console.log(err);
-            res.status(500).json({ errorMessage: "500/catch for GET"})
+            res.status(500).json({ errorMessage: "Sorry there was an error retrieving current projects"})
         })
 })
 
@@ -25,12 +29,12 @@ router.get("/:id", (req, res) => {
             if(project) {
                 res.status(200).json(project);
             } else {
-                res.status(404).json({ errorMessage: "404/catch for GET/:id" })
+                res.status(404).json({ errorMessage: `Sorry, ID #${req.params.id} does not exist` })
             }
         })
         .catch(err => {
             console.log(err);
-            res.status(500).json({ message: "500/catch for get/:id"});
+            res.status(500).json({ errorMessage: `Oops, we couldn't retrieve ID #${req.params.id}'s projects`});
         });
 })
 
@@ -48,7 +52,7 @@ router.get('/:id/actions', validateProjectId, (req, res) => {
       })
       .catch(err => {
         console.log(err);
-        res.status(500).json({ errorMessage: `Project ID #${req.params.id} does not have any actions` });
+        res.status(500).json({ errorMessage: `Oops, we couldn't retrieve ID #${req.params.id}'s actions` });
       })
   });
 
@@ -156,4 +160,6 @@ function validateProject(req, res, next) {
     req.body = {project_id, description, notes};
     next();
    }
+
+   
 module.exports = router;
